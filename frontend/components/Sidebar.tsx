@@ -20,6 +20,8 @@ import { useClients } from "@/hooks/useClients";
 import { Client } from "@/lib/types";
 import NewClientModal from "./NewClientModal";
 import EditClientModal from "./EditClientModal";
+import ConfirmDialog from "./ConfirmDialog";
+import { api } from "@/lib/api";
 
 const NAV_ITEMS = [
   { href: "/", label: "Home", icon: Home },
@@ -56,18 +58,19 @@ export default function Sidebar() {
   const { clients, loading, refetch } = useClients();
   const [showNewClient, setShowNewClient] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [confirmDeleteClient, setConfirmDeleteClient] = useState<Client | null>(null);
   const [deletingClientId, setDeletingClientId] = useState<string | null>(null);
   const [showTheme, setShowTheme] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  async function handleDeleteClient(client: Client) {
-    if (!confirm(`Delete "${client.name}"? This will also delete all its tasks and subtasks.`)) return;
+  async function executeDeleteClient(client: Client) {
     setDeletingClientId(client.id);
     try {
-      await import("@/lib/api").then(({ api }) => api.clients.delete(client.id));
+      await api.clients.delete(client.id);
       window.dispatchEvent(new CustomEvent("clients-changed"));
+      setConfirmDeleteClient(null);
     } catch {
-      alert("Failed to delete client. Please try again.");
+      setConfirmDeleteClient(null);
     } finally {
       setDeletingClientId(null);
     }
@@ -213,7 +216,7 @@ export default function Sidebar() {
                   </button>
                   <button
                     id={`sidebar-client-delete-${client.id}`}
-                    onClick={(e) => { e.stopPropagation(); handleDeleteClient(client); }}
+                    onClick={(e) => { e.stopPropagation(); setConfirmDeleteClient(client); }}
                     disabled={isDeleting}
                     className="p-1 rounded hover:bg-red-500/20 transition-colors disabled:opacity-40"
                     style={{ color: isDeleting ? "var(--muted)" : "var(--danger, #e05c5c)" }}
@@ -340,6 +343,19 @@ export default function Sidebar() {
           onClose={() => setEditingClient(null)}
           onUpdated={() => { refetch(); }}
           onDeleted={() => { refetch(); }}
+        />
+      )}
+
+      {confirmDeleteClient && (
+        <ConfirmDialog
+          title={`Delete ${confirmDeleteClient.name}?`}
+          message={`This will permanently delete all tasks and subtasks for "${confirmDeleteClient.name}". This cannot be undone.`}
+          confirmLabel="Delete Client"
+          cancelLabel="Cancel"
+          danger
+          loading={deletingClientId === confirmDeleteClient.id}
+          onConfirm={() => executeDeleteClient(confirmDeleteClient)}
+          onCancel={() => setConfirmDeleteClient(null)}
         />
       )}
 
