@@ -1,0 +1,12 @@
+# Render Blueprint for TaskFlow FastAPI Backend
+services:
+  - type: web
+    name: taskflow-api
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: "*"
