@@ -146,9 +146,20 @@ export default function Sidebar() {
             <span className="text-xs" style={{ color: "var(--muted)" }}>Loading…</span>
           </div>
         ) : clients.length === 0 ? (
-          <p className="text-xs px-3 py-2 italic" style={{ color: "var(--muted)" }}>
-            No clients yet.
-          </p>
+          <div className="px-3 py-4 text-center border border-dashed rounded-xl my-2 mx-1 flex flex-col items-center gap-2" style={{ borderColor: "var(--border)", backgroundColor: "rgba(255,255,255,0.01)" }}>
+            <p className="text-xs font-medium" style={{ color: "var(--muted)" }}>
+              No clients yet
+            </p>
+            <button
+              id="sidebar-create-first-client-btn"
+              onClick={() => setShowNewClient(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-90 active:scale-95 shadow-sm"
+              style={{ backgroundColor: "rgba(181,80,47,0.15)", color: "var(--accent)", border: "1px solid rgba(181,80,47,0.3)" }}
+            >
+              <Plus size={12} />
+              Add Client
+            </button>
+          </div>
         ) : (
           clients.map((client) => {
             const active = pathname === `/clients/${client.id}`;

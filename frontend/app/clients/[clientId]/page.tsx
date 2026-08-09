@@ -24,8 +24,8 @@ export default function ClientPage() {
   const params = useParams();
   const clientId = params.clientId as string;
 
-  const { clients } = useClients();
-  const { tasks, loading, error } = useTasks(clientId);
+  const { clients, refetch: refetchClients } = useClients();
+  const { tasks, loading, error, refetch: refetchTasks } = useTasks(clientId);
   const [localTasks, setLocalTasks] = useState<Task[] | null>(null);
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
 
@@ -35,6 +35,11 @@ export default function ClientPage() {
   const handleTasksChange = useCallback((updated: Task[]) => {
     setLocalTasks(updated);
   }, []);
+
+  const handleRetry = useCallback(() => {
+    refetchClients();
+    refetchTasks();
+  }, [refetchClients, refetchTasks]);
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
@@ -110,9 +115,12 @@ export default function ClientPage() {
             loading={loading}
             error={error}
             clientId={clientId}
+            clients={clients}
             showClient={false}
             filters={filters}
             onTasksChange={handleTasksChange}
+            onRetry={handleRetry}
+            onClientCreated={handleRetry}
           />
         </div>
       </main>

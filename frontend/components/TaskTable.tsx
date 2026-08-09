@@ -1,13 +1,14 @@
-// TaskTable — groups tasks by month, renders MonthGroup rows, manages NewTaskModal
+// TaskTable — groups tasks by month, renders MonthGroup rows, manages NewTaskModal & NewClientModal
 "use client";
 
 import { useState, useCallback } from "react";
-import { Loader2, ClipboardList, Plus } from "lucide-react";
+import { Loader2, ClipboardList, Plus, FolderPlus, WifiOff, RefreshCw } from "lucide-react";
 import { Task, Client } from "@/lib/types";
 import { groupByMonth } from "@/lib/dateUtils";
 import { FilterState } from "./FilterBar";
 import MonthGroup from "./MonthGroup";
 import NewTaskModal from "./NewTaskModal";
+import NewClientModal from "./NewClientModal";
 
 interface TaskTableProps {
   tasks: Task[];
@@ -19,6 +20,8 @@ interface TaskTableProps {
   filters: FilterState;
   onTasksChange: (tasks: Task[]) => void;
   flashTaskId?: string | null;
+  onRetry?: () => void;
+  onClientCreated?: () => void;
 }
 
 function applyFilters(tasks: Task[], f: FilterState): Task[] {
@@ -55,8 +58,11 @@ export default function TaskTable({
   filters,
   onTasksChange,
   flashTaskId,
+  onRetry,
+  onClientCreated,
 }: TaskTableProps) {
   const [showNewTaskModal, setShowNewTaskModal] = useState(false);
+  const [showNewClientModal, setShowNewClientModal] = useState(false);
 
   const filtered = applyFilters(tasks, filters);
   const groups = groupByMonth(filtered);
@@ -82,15 +88,75 @@ export default function TaskTable({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 size={20} className="animate-spin" style={{ color: "var(--muted)" }} />
+        <Loader2 size={24} className="animate-spin" style={{ color: "var(--accent)" }} />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center py-24">
-        <p style={{ color: "var(--danger)" }} className="text-sm">{error}</p>
+      <div className="text-center py-16 px-6 flex flex-col items-center justify-center gap-4 border rounded-2xl max-w-lg mx-auto my-10 shadow-sm" style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}>
+        <div className="p-4 rounded-full" style={{ backgroundColor: "rgba(220,38,38,0.12)", color: "var(--danger)" }}>
+          <WifiOff size={32} />
+        </div>
+        <div className="max-w-sm">
+          <h3 className="text-xl font-bold mb-2" style={{ fontFamily: "Fraunces, var(--font-fraunces), serif", color: "var(--text)" }}>
+            Unable to Connect
+          </h3>
+          <p className="text-xs leading-relaxed" style={{ color: "var(--muted)" }}>
+            {error.includes("Failed to fetch")
+              ? "Could not connect to the TaskFlow backend server. Please make sure your backend is running."
+              : error}
+          </p>
+        </div>
+        {onRetry && (
+          <button
+            id="error-retry-btn"
+            onClick={onRetry}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold transition-all hover:opacity-90 active:scale-95 shadow-md"
+            style={{ backgroundColor: "var(--accent)", color: "#fff" }}
+          >
+            <RefreshCw size={14} />
+            Retry Connection
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  // Zero clients onboarding empty state
+  if (clients && clients.length === 0) {
+    return (
+      <div className="text-center py-16 px-6 flex flex-col items-center justify-center gap-4 border rounded-2xl max-w-md mx-auto my-10 shadow-sm" style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}>
+        <div className="p-4 rounded-full" style={{ backgroundColor: "rgba(181,80,47,0.12)", color: "var(--accent)" }}>
+          <FolderPlus size={36} />
+        </div>
+        <div className="max-w-sm">
+          <h3 className="text-xl font-bold mb-2" style={{ fontFamily: "Fraunces, var(--font-fraunces), Georgia, serif", color: "var(--text)" }}>
+            Welcome to TaskFlow!
+          </h3>
+          <p className="text-xs leading-relaxed" style={{ color: "var(--muted)" }}>
+            To start organizing tasks and managing projects, please create your first client.
+          </p>
+        </div>
+        <button
+          id="empty-create-client-btn"
+          onClick={() => setShowNewClientModal(true)}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold transition-all hover:opacity-90 active:scale-95 shadow-md"
+          style={{ backgroundColor: "var(--accent)", color: "#fff" }}
+        >
+          <Plus size={15} />
+          Create First Client
+        </button>
+
+        {showNewClientModal && (
+          <NewClientModal
+            onClose={() => setShowNewClientModal(false)}
+            onCreated={() => {
+              if (onClientCreated) onClientCreated();
+            }}
+          />
+        )}
       </div>
     );
   }
@@ -155,19 +221,22 @@ export default function TaskTable({
       {filtered.length === 0 ? (
         <div className="text-center py-20 flex flex-col items-center gap-3 border rounded-xl" style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}>
           <ClipboardList size={36} style={{ color: "var(--muted)", opacity: 0.4 }} />
-          <p className="text-sm" style={{ color: "var(--muted)" }}>
+          <p className="text-sm font-medium" style={{ color: "var(--text)" }}>
+            {tasks.length === 0 ? "No tasks found" : "No matching tasks"}
+          </p>
+          <p className="text-xs" style={{ color: "var(--muted)" }}>
             {tasks.length === 0
-              ? "No tasks yet. Click below to add your first task."
+              ? "Click below to add your first task and start tracking progress."
               : "No tasks match the current filters."}
           </p>
           <button
             id="empty-add-task-btn"
             onClick={() => setShowNewTaskModal(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium border border-dashed transition-colors"
-            style={{ borderColor: "var(--accent)", color: "var(--accent)" }}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all hover:opacity-90 shadow-sm"
+            style={{ backgroundColor: "var(--accent)", color: "#fff" }}
           >
             <Plus size={14} />
-            Add First Task
+            {tasks.length === 0 ? "Add First Task" : "Add Task"}
           </button>
         </div>
       ) : (
@@ -207,15 +276,25 @@ export default function TaskTable({
         </div>
       )}
 
-      {/* New Task Modal */}
+      {/* Modals */}
       {showNewTaskModal && (
         <NewTaskModal
           clientId={clientId}
           clients={clients}
           onClose={() => setShowNewTaskModal(false)}
           onCreated={handleTaskCreated}
+          onOpenNewClientModal={() => setShowNewClientModal(true)}
+        />
+      )}
+      {showNewClientModal && (
+        <NewClientModal
+          onClose={() => setShowNewClientModal(false)}
+          onCreated={() => {
+            if (onClientCreated) onClientCreated();
+          }}
         />
       )}
     </div>
   );
 }
+

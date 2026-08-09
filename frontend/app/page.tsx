@@ -19,28 +19,30 @@ const DEFAULT_FILTERS: FilterState = {
 };
 
 export default function HomePage() {
-  const { tasks, loading, error } = useTasks();
-  const { clients } = useClients();
+  const { tasks, loading: tasksLoading, error: tasksError, refetch: refetchTasks } = useTasks();
+  const { clients, loading: clientsLoading, error: clientsError, refetch: refetchClients } = useClients();
   const [localTasks, setLocalTasks] = useState<Task[] | null>(null);
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [flashTaskId, setFlashTaskId] = useState<string | null>(null);
   const tableRef = useRef<HTMLDivElement>(null);
 
+  const loading = tasksLoading || clientsLoading;
+  const error = tasksError || clientsError;
   const displayTasks = localTasks ?? tasks;
-
-  // Keep localTasks in sync when backend data loads
-  if (!loading && !error && localTasks === null && tasks.length >= 0) {
-    // Only initialise once
-  }
 
   const handleTasksChange = useCallback((updated: Task[]) => {
     setLocalTasks(updated);
   }, []);
 
-  // Sync localTasks when fresh data arrives
-  useState(() => {
-    if (!loading) setLocalTasks(tasks);
-  });
+  const handleRetry = useCallback(() => {
+    refetchTasks();
+    refetchClients();
+  }, [refetchTasks, refetchClients]);
+
+  const handleClientCreated = useCallback(() => {
+    refetchClients();
+    refetchTasks();
+  }, [refetchClients, refetchTasks]);
 
   function scrollToTasksForDay(dayOffset: number) {
     const today = new Date();
@@ -116,6 +118,8 @@ export default function HomePage() {
             filters={filters}
             onTasksChange={handleTasksChange}
             flashTaskId={flashTaskId}
+            onRetry={handleRetry}
+            onClientCreated={handleClientCreated}
           />
         </div>
       </main>
