@@ -120,6 +120,7 @@ export default function HomePage() {
             flashTaskId={flashTaskId}
             onRetry={handleRetry}
             onClientCreated={handleClientCreated}
+            allowClientCreate={false}
           />
         </div>
       </main>

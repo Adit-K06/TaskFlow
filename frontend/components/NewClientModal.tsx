@@ -34,6 +34,8 @@ export default function NewClientModal({ onClose, onCreated }: NewClientModalPro
         category: category.trim() || null,
         color,
       });
+      // Notify all useClients instances (sidebar, pages) to refetch immediately
+      window.dispatchEvent(new CustomEvent("clients-changed"));
       onCreated(client);
       onClose();
     } catch (err) {

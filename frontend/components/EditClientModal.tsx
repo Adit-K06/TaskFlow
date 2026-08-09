@@ -45,6 +45,7 @@ export default function EditClientModal({
         category: category.trim() || null,
         color,
       });
+      window.dispatchEvent(new CustomEvent("clients-changed"));
       onUpdated(updated);
       onClose();
     } catch (err) {
@@ -58,6 +59,7 @@ export default function EditClientModal({
     setDeleting(true);
     try {
       await api.clients.delete(client.id);
+      window.dispatchEvent(new CustomEvent("clients-changed"));
       onDeleted(client.id);
       onClose();
     } catch (err) {

@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Loader2, ClipboardList, Plus, FolderPlus, WifiOff, RefreshCw } from "lucide-react";
+import { Loader2, ClipboardList, Plus, FolderPlus, WifiOff, RefreshCw, MousePointerClick } from "lucide-react";
 import { Task, Client } from "@/lib/types";
 import { groupByMonth } from "@/lib/dateUtils";
 import { FilterState } from "./FilterBar";
@@ -22,6 +22,7 @@ interface TaskTableProps {
   flashTaskId?: string | null;
   onRetry?: () => void;
   onClientCreated?: () => void;
+  allowClientCreate?: boolean; // false on home page (show select-client hint instead)
 }
 
 function applyFilters(tasks: Task[], f: FilterState): Task[] {
@@ -60,6 +61,7 @@ export default function TaskTable({
   flashTaskId,
   onRetry,
   onClientCreated,
+  allowClientCreate = true,
 }: TaskTableProps) {
   const [showNewTaskModal, setShowNewTaskModal] = useState(false);
   const [showNewClientModal, setShowNewClientModal] = useState(false);
@@ -124,8 +126,27 @@ export default function TaskTable({
     );
   }
 
-  // Zero clients onboarding empty state
+  // Zero clients state — two variants: home page (select-client hint) vs client pages (create-client card)
   if (clients && clients.length === 0) {
+    if (!allowClientCreate) {
+      // Home page: clients exist elsewhere but none loaded yet, or this is the global view
+      return (
+        <div className="text-center py-16 px-6 flex flex-col items-center justify-center gap-4 border rounded-2xl max-w-md mx-auto my-10 shadow-sm" style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}>
+          <div className="p-4 rounded-full" style={{ backgroundColor: "rgba(181,80,47,0.10)", color: "var(--accent)" }}>
+            <MousePointerClick size={36} />
+          </div>
+          <div className="max-w-sm">
+            <h3 className="text-xl font-bold mb-2" style={{ fontFamily: "Fraunces, var(--font-fraunces), Georgia, serif", color: "var(--text)" }}>
+              Select a Client
+            </h3>
+            <p className="text-xs leading-relaxed" style={{ color: "var(--muted)" }}>
+              Click any client in the sidebar to view and manage its tasks. You can also create a new client using the <strong style={{ color: "var(--accent)" }}>+</strong> button next to &quot;Clients&quot;.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="text-center py-16 px-6 flex flex-col items-center justify-center gap-4 border rounded-2xl max-w-md mx-auto my-10 shadow-sm" style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}>
         <div className="p-4 rounded-full" style={{ backgroundColor: "rgba(181,80,47,0.12)", color: "var(--accent)" }}>

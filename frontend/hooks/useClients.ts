@@ -17,7 +17,7 @@ export function useClients(): UseClientsReturn {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetch = useCallback(async () => {
+  const fetchClients = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -31,8 +31,15 @@ export function useClients(): UseClientsReturn {
   }, []);
 
   useEffect(() => {
-    fetch();
-  }, [fetch]);
+    fetchClients();
+  }, [fetchClients]);
 
-  return { clients, loading, error, refetch: fetch };
+  // Listen for global clients-changed events so all hook instances (sidebar + pages) stay in sync
+  useEffect(() => {
+    const handler = () => fetchClients();
+    window.addEventListener("clients-changed", handler);
+    return () => window.removeEventListener("clients-changed", handler);
+  }, [fetchClients]);
+
+  return { clients, loading, error, refetch: fetchClients };
 }
