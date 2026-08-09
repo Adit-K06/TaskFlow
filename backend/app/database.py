@@ -6,7 +6,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "")
+raw_url = os.getenv("DATABASE_URL", "")
+
+if raw_url.startswith("postgres://"):
+    DATABASE_URL = raw_url.replace("postgres://", "postgresql+psycopg://", 1)
+elif raw_url.startswith("postgresql://") and not raw_url.startswith("postgresql+psycopg://"):
+    DATABASE_URL = raw_url.replace("postgresql://", "postgresql+psycopg://", 1)
+else:
+    DATABASE_URL = raw_url
+
+if not DATABASE_URL:
+    DATABASE_URL = "sqlite:///./taskflow.db"
 
 engine = create_engine(DATABASE_URL, echo=False)
 
@@ -25,3 +35,4 @@ def get_db():
         yield db
     finally:
         db.close()
+

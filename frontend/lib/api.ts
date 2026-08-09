@@ -15,7 +15,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
   });
   if (!res.ok) {
-    const text = await res.text().catch(() => "Unknown error");
+    let text = await res.text().catch(() => "Unknown error");
+    if (text.trim().startsWith("<!") || text.trim().startsWith("<html") || text.includes("<title>")) {
+      text = `Backend returned HTTP ${res.status} error (${res.statusText || "Error"}). Please check backend configuration.`;
+    }
     throw new ApiError(res.status, text);
   }
   if (res.status === 204) return undefined as unknown as T;
