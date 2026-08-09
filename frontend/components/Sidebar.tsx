@@ -9,7 +9,8 @@ import {
   LayoutGrid,
   Calendar,
   Plus,
-  MoreVertical,
+  Pencil,
+  Trash2,
   Settings,
   Loader2,
   Menu,
@@ -55,9 +56,22 @@ export default function Sidebar() {
   const { clients, loading, refetch } = useClients();
   const [showNewClient, setShowNewClient] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [deletingClientId, setDeletingClientId] = useState<string | null>(null);
   const [showTheme, setShowTheme] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  async function handleDeleteClient(client: Client) {
+    if (!confirm(`Delete "${client.name}"? This will also delete all its tasks and subtasks.`)) return;
+    setDeletingClientId(client.id);
+    try {
+      await import("@/lib/api").then(({ api }) => api.clients.delete(client.id));
+      window.dispatchEvent(new CustomEvent("clients-changed"));
+    } catch {
+      alert("Failed to delete client. Please try again.");
+    } finally {
+      setDeletingClientId(null);
+    }
+  }
 
   function setTheme(key: string) {
     document.documentElement.setAttribute("data-theme", key);
@@ -163,6 +177,7 @@ export default function Sidebar() {
         ) : (
           clients.map((client) => {
             const active = pathname === `/clients/${client.id}`;
+            const isDeleting = deletingClientId === client.id;
             return (
               <div
                 key={client.id}
@@ -185,36 +200,28 @@ export default function Sidebar() {
                   <span className="truncate text-sm">{client.name}</span>
                 </Link>
 
-                {/* ⋮ menu */}
-                <button
-                  id={`sidebar-client-menu-${client.id}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenMenuId(openMenuId === client.id ? null : client.id);
-                  }}
-                  className="p-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity mr-1"
-                  style={{ color: "var(--muted)" }}
-                >
-                  <MoreVertical size={12} />
-                </button>
-
-                {openMenuId === client.id && (
-                  <div
-                    className="absolute right-0 top-full z-50 w-32 rounded-lg shadow-xl border overflow-hidden"
-                    style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
+                {/* Edit + Delete buttons — visible on hover */}
+                <div className="flex items-center gap-0.5 pr-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    id={`sidebar-client-edit-${client.id}`}
+                    onClick={(e) => { e.stopPropagation(); setEditingClient(client); }}
+                    className="p-1 rounded hover:bg-white/10 transition-colors"
+                    style={{ color: "var(--muted)" }}
+                    title="Edit client"
                   >
-                    <button
-                      onClick={() => {
-                        setEditingClient(client);
-                        setOpenMenuId(null);
-                      }}
-                      className="w-full text-left px-3 py-2 text-xs transition-colors hover:bg-white/10"
-                      style={{ color: "var(--text)" }}
-                    >
-                      Edit
-                    </button>
-                  </div>
-                )}
+                    <Pencil size={11} />
+                  </button>
+                  <button
+                    id={`sidebar-client-delete-${client.id}`}
+                    onClick={(e) => { e.stopPropagation(); handleDeleteClient(client); }}
+                    disabled={isDeleting}
+                    className="p-1 rounded hover:bg-red-500/20 transition-colors disabled:opacity-40"
+                    style={{ color: isDeleting ? "var(--muted)" : "var(--danger, #e05c5c)" }}
+                    title="Delete client"
+                  >
+                    {isDeleting ? <Loader2 size={11} className="animate-spin" /> : <Trash2 size={11} />}
+                  </button>
+                </div>
               </div>
             );
           })
@@ -336,13 +343,7 @@ export default function Sidebar() {
         />
       )}
 
-      {/* Close menus on outside click */}
-      {openMenuId && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setOpenMenuId(null)}
-        />
-      )}
+      {/* Close menus on outside click — no longer needed but kept safe */}
     </>
   );
 }

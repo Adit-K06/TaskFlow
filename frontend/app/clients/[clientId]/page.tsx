@@ -24,8 +24,8 @@ export default function ClientPage() {
   const params = useParams();
   const clientId = params.clientId as string;
 
-  const { clients, refetch: refetchClients } = useClients();
-  const { tasks, loading, error, refetch: refetchTasks } = useTasks(clientId);
+  const { clients, loading: clientsLoading, refetch: refetchClients } = useClients();
+  const { tasks, loading: tasksLoading, error, refetch: refetchTasks } = useTasks(clientId);
   const [localTasks, setLocalTasks] = useState<Task[] | null>(null);
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
 
@@ -57,10 +57,19 @@ export default function ClientPage() {
             style={{ color: "var(--muted)" }}
           >
             <ArrowLeft size={12} />
-            All Tasks
+            Home
           </Link>
 
-          {client ? (
+          {clientsLoading ? (
+            // True loading skeleton — only shown while clients are actually being fetched
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-10 rounded-full animate-pulse" style={{ backgroundColor: "var(--border)" }} />
+              <div>
+                <div className="h-7 w-48 rounded animate-pulse mb-1" style={{ backgroundColor: "var(--border)" }} />
+                <div className="h-4 w-24 rounded animate-pulse" style={{ backgroundColor: "var(--border)" }} />
+              </div>
+            </div>
+          ) : client ? (
             <div className="flex items-center gap-3">
               {/* Color tab */}
               <div
@@ -91,13 +100,20 @@ export default function ClientPage() {
               </div>
             </div>
           ) : (
-            // Skeleton
-            <div className="flex items-center gap-3">
-              <div className="w-1 h-10 rounded-full bg-white/10" />
-              <div>
-                <div className="h-7 w-48 rounded bg-white/10 mb-1" />
-                <div className="h-4 w-24 rounded bg-white/10" />
-              </div>
+            // Client not found after loading — show a clean message
+            <div>
+              <h1
+                className="text-2xl font-semibold leading-tight"
+                style={{
+                  fontFamily: "Fraunces, var(--font-fraunces), Georgia, serif",
+                  color: "var(--muted)",
+                }}
+              >
+                Client not found
+              </h1>
+              <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>
+                This client may have been deleted.
+              </p>
             </div>
           )}
         </div>
@@ -112,7 +128,7 @@ export default function ClientPage() {
           {/* Task table */}
           <TaskTable
             tasks={displayTasks}
-            loading={loading}
+            loading={tasksLoading}
             error={error}
             clientId={clientId}
             clients={clients}
