@@ -28,13 +28,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routers
+# Mount routers at both root and /api for maximum compatibility with Vercel env settings
 app.include_router(clients.router)
 app.include_router(tasks.router)
 app.include_router(subtasks.router)
 
+app.include_router(clients.router, prefix="/api")
+app.include_router(tasks.router, prefix="/api")
+app.include_router(subtasks.router, prefix="/api")
+
 
 @app.get("/health", tags=["Health"])
+@app.get("/api/health", tags=["Health"])
 async def health_check() -> dict[str, str]:
     """Returns OK — used by deployment platforms and frontend CORS tests."""
     return {"status": "ok"}
+

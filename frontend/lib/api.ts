@@ -7,7 +7,8 @@ import {
   Subtask, SubtaskCreate, SubtaskUpdate,
 } from "./types";
 
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const rawBase = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").trim();
+const BASE = rawBase.replace(/\/+$/, "");
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
