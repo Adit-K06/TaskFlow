@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="midnight">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow — Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ========== APP SHELL ========== -->
+  <div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-logo">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="8" height="8" rx="2" fill="var(--accent)"/><rect x="12" y="2" width="8" height="8" rx="2" fill="var(--border)"/><rect x="2" y="12" width="8" height="8" rx="2" fill="var(--border)"/><rect x="12" y="12" width="8" height="8" rx="2" fill="var(--accent)" opacity="0.5"/></svg>
+        </span>
+        <span class="sidebar-title">TaskFlow</span>
+      </div>
+
+      <!-- Client List -->
+      <div class="sidebar-section-label">Clients</div>
+      <nav class="sidebar-nav">
+        <a href="index.html" class="sidebar-item active" id="nav-home">
+          <span class="sidebar-item-icon">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 1.5L1.5 6.5V13.5H5.5V9.5H9.5V13.5H13.5V6.5L7.5 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          </span>
+          <span class="sidebar-item-text">All Tasks</span>
+          <span class="sidebar-item-badge">7</span>
+        </a>
+
+        <a href="client.html" class="sidebar-client-item" id="nav-client-1">
+          <span class="client-color-chip" style="background:#B5502F;"></span>
+          <div class="sidebar-client-info">
+            <span class="sidebar-client-name">Skyline Residence</span>
+            <span class="sidebar-client-cat">3D Design</span>
+          </div>
+          <span class="sidebar-item-badge">3</span>
+        </a>
+
+        <a href="#" class="sidebar-client-item" id="nav-client-2">
+          <span class="client-color-chip" style="background:#5B6FA8;"></span>
+          <div class="sidebar-client-info">
+            <span class="sidebar-client-name">Oak & Marble Studio</span>
+            <span class="sidebar-client-cat">2D Drawings</span>
+          </div>
+          <span class="sidebar-item-badge">4</span>
+        </a>
+
+        <a href="#" class="sidebar-client-item" id="nav-client-3">
+          <span class="client-color-chip" style="background:#6A8C5C;"></span>
+          <div class="sidebar-client-info">
+            <span class="sidebar-client-name">Elmwood Interiors</span>
+            <span class="sidebar-client-cat">FF&E Spec</span>
+          </div>
+          <span class="sidebar-item-badge">2</span>
+        </a>
+
+        <button class="sidebar-add-client" id="btn-new-client">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5V11.5M1.5 6.5H11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          New Client
+        </button>
+      </nav>
+
+      <!-- Bottom Nav -->
+      <div class="sidebar-bottom-nav">
+        <a href="#" class="sidebar-item" id="nav-calendar">
+          <span class="sidebar-item-icon">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1.5" y="3" width="12" height="10.5" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1.5 6.5H13.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 1.5V4M10 1.5V4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </span>
+          <span class="sidebar-item-text">Calendar</span>
+        </a>
+        <a href="#" class="sidebar-item" id="nav-overview">
+          <span class="sidebar-item-icon">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1.5" y="1.5" width="5" height="12" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="8.5" y="1.5" width="5" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="8.5" y="10" width="5" height="3.5" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+          </span>
+          <span class="sidebar-item-text">Overview</span>
+        </a>
+      </div>
+
+      <!-- Settings / Theme -->
+      <div class="sidebar-footer">
+        <div class="theme-picker" id="theme-picker">
+          <span class="theme-picker-label">Theme</span>
+          <div class="theme-dots">
+            <button class="theme-dot active" data-theme="midnight" title="Midnight" style="background:#B5502F;" onclick="setTheme('midnight')"></button>
+            <button class="theme-dot" data-theme="daylight" title="Daylight" style="background:#A6532C;" onclick="setTheme('daylight')"></button>
+            <button class="theme-dot" data-theme="terracotta" title="Terracotta" style="background:#E07040;" onclick="setTheme('terracotta')"></button>
+            <button class="theme-dot" data-theme="sage" title="Sage & Linen" style="background:#6A8C5C;" onclick="setTheme('sage')"></button>
+            <button class="theme-dot" data-theme="slate" title="Slate Blue" style="background:#5B6FA8;" onclick="setTheme('slate')"></button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="main-content">
+
+      <!-- DUE-TODAY BANNER -->
+      <div class="due-banner" id="due-banner">
+        <div class="due-banner-inner">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="var(--accent)" stroke-width="1.5"/><path d="M8 4.5V8.5L10.5 10" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>You have <button class="banner-link">2 tasks</button> due today and <button class="banner-link">1 task</button> due tomorrow across all clients.</span>
+        </div>
+        <button class="due-banner-dismiss" id="banner-dismiss" onclick="document.getElementById('due-banner').style.display='none'" title="Dismiss">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+
+      <!-- PAGE HEADER -->
+      <div class="page-header">
+        <h1 class="page-title">All Tasks</h1>
+        <div class="page-header-actions">
+          <div class="filter-bar">
+            <button class="filter-btn">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 3H11.5M3.5 6.5H9.5M5.5 10H7.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              Filter
+              <span class="filter-count">2</span>
+            </button>
+            <div class="filter-chips">
+              <span class="filter-chip">Status: Ongoing <button>×</button></span>
+              <span class="filter-chip">Due: Aug 2026 <button>×</button></span>
+              <button class="filter-clear">Clear all</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TASK TABLE -->
+      <div class="table-container">
+        <table class="task-table">
+          <thead>
+            <tr>
+              <th class="col-srno">#</th>
+              <th class="col-check"></th>
+              <th class="col-name">Task Name</th>
+              <th class="col-client">Client</th>
+              <th class="col-remarks">Remarks</th>
+              <th class="col-start">Start</th>
+              <th class="col-due">Due Date</th>
+              <th class="col-assignees">Assignees</th>
+              <th class="col-status">Status</th>
+              <th class="col-progress">Progress</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <!-- MONTH GROUP HEADER: August 2026 -->
+            <tr class="month-group-row" id="group-aug">
+              <td colspan="10">
+                <button class="month-group-toggle" onclick="toggleGroup('aug')">
+                  <svg class="group-chevron" id="chevron-aug" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  August 2026
+                  <span class="month-count">4 tasks</span>
+                </button>
+              </td>
+            </tr>
+
+            <!-- ROW 1: Ongoing, due in 1 day (SOON/RED) -->
+            <tr class="task-row" data-group="aug">
+              <td class="col-srno">1</td>
+              <td class="col-check"><input type="checkbox" class="task-check" /></td>
+              <td class="col-name">
+                <div class="task-name-cell">
+                  <button class="subtask-chevron" onclick="toggleSubtasks('t1')">
+                    <svg id="t1-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2.5 3.75L5 6.25L7.5 3.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  </button>
+                  <span class="task-name-text">Initial concept renders</span>
+                </div>
+              </td>
+              <td class="col-client"><span class="client-tag" style="--client-c:#B5502F">Skyline</span></td>
+              <td class="col-remarks"><span class="remarks-text" title="First batch — include 3 hero angles and the mood board sheet">First batch — include 3 hero angles...</span></td>
+              <td class="col-start">Jul 28</td>
+              <td class="col-due"><span class="due-badge due-soon">Aug 10</span></td>
+              <td class="col-assignees">
+                <div class="assignees">
+                  <span class="assignee-chip">AD</span>
+                  <span class="assignee-chip">RK</span>
+                </div>
+              </td>
+              <td class="col-status"><span class="status-badge status-ongoing">Ongoing</span></td>
+              <td class="col-progress">
+                <div class="progress-cell">
+                  <div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
+                  <span class="progress-label">1/2</span>
+                </div>
+              </td>
+            </tr>
+            <!-- Subtasks for row 1 -->
+            <tr class="subtask-section" id="subtasks-t1" style="display:none;">
+              <td colspan="10">
+                <div class="subtasks-container">
+                  <div class="subtask-row">
+                    <input type="checkbox" class="subtask-check" checked />
+                    <span class="subtask-name subtask-done">Gather reference images</span>
+                  </div>
+                  <div class="subtask-row">
+                    <input type="checkbox" class="subtask-check" />
+                    <span class="subtask-name">Render hero angle 1</span>
+                  </div>
+                  <div class="subtask-add">
+                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1V10M1 5.5H10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                    Add subtask
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+            <!-- ROW 2: Not Started, due in 10 days (GREEN) -->
+            <tr class="task-row" data-group="aug">
+              <td class="col-srno">2</td>
+              <td class="col-check"><input type="checkbox" class="task-check" /></td>
+              <td class="col-name">
+                <div class="task-name-cell">
+                  <span class="subtask-chevron-placeholder"></span>
+                  <span class="task-name-text">Client revision round 1</span>
+                </div>
+              </td>
+              <td class="col-client"><span class="client-tag" style="--client-c:#B5502F">Skyline</span></td>
+              <td class="col-remarks"><span class="remarks-text muted">—</span></td>
+              <td class="col-start">Aug 5</td>
+              <td class="col-due"><span class="due-badge due-ok">Aug 20</span></td>
+              <td class="col-assignees">
+                <div class="assignees"><span class="assignee-chip">AD</span></div>
+              </td>
+              <td class="col-status"><span class="status-badge status-not-started">Not Started</span></td>
+              <td class="col-progress">—</td>
+            </tr>
+
+            <!-- ROW 3: Ongoing, due in 3 days (YELLOW) -->
+            <tr class="task-row" data-group="aug">
+              <td class="col-srno">3</td>
+              <td class="col-check"><input type="checkbox" class="task-check" /></td>
+              <td class="col-name">
+                <div class="task-name-cell">
+                  <span class="subtask-chevron-placeholder"></span>
+                  <span class="task-name-text">Elevation drawings</span>
+                </div>
+              </td>
+              <td class="col-client"><span class="client-tag" style="--client-c:#5B6FA8">Oak & Marble</span></td>
+              <td class="col-remarks"><span class="remarks-text" title="North and south elevations only in this round">North and south elevations...</span></td>
+              <td class="col-start">Aug 1</td>
+              <td class="col-due"><span class="due-badge due-warning">Aug 13</span></td>
+              <td class="col-assignees">
+                <div class="assignees">
+                  <span class="assignee-chip">RK</span>
+                  <span class="assignee-chip">NP</span>
+                </div>
+              </td>
+              <td class="col-status"><span class="status-badge status-ongoing">Ongoing</span></td>
+              <td class="col-progress">—</td>
+            </tr>
+
+            <!-- ROW 4: Completed (MUTED) -->
+            <tr class="task-row task-completed" data-group="aug">
+              <td class="col-srno">4</td>
+              <td class="col-check"><input type="checkbox" class="task-check" checked /></td>
+              <td class="col-name">
+                <div class="task-name-cell">
+                  <span class="subtask-chevron-placeholder"></span>
+                  <span class="task-name-text task-strikethrough">Floor plan draft</span>
+                </div>
+              </td>
+              <td class="col-client"><span class="client-tag" style="--client-c:#5B6FA8">Oak & Marble</span></td>
+              <td class="col-remarks"><span class="remarks-text muted">—</span></td>
+              <td class="col-start">Jul 20</td>
+              <td class="col-due"><span class="due-badge due-done">Aug 5</span></td>
+              <td class="col-assignees">
+                <div class="assignees"><span class="assignee-chip">AD</span></div>
+              </td>
+              <td class="col-status"><span class="status-badge status-completed">Completed</span></td>
+              <td class="col-progress">—</td>
+            </tr>
+
+            <!-- MONTH GROUP HEADER: No Due Date -->
+            <tr class="month-group-row" id="group-none">
+              <td colspan="10">
+                <button class="month-group-toggle" onclick="toggleGroup('none')">
+                  <svg class="group-chevron" id="chevron-none" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  No Due Date
+                  <span class="month-count">3 tasks</span>
+                </button>
+              </td>
+            </tr>
+
+            <!-- ROW 5: No due date -->
+            <tr class="task-row" data-group="none">
+              <td class="col-srno">5</td>
+              <td class="col-check"><input type="checkbox" class="task-check" /></td>
+              <td class="col-name">
+                <div class="task-name-cell">
+                  <span class="subtask-chevron-placeholder"></span>
+                  <span class="task-name-text">Final deliverable export</span>
+                </div>
+              </td>
+              <td class="col-client"><span class="client-tag" style="--client-c:#B5502F">Skyline</span></td>
+              <td class="col-remarks"><span class="remarks-text muted">—</span></td>
+              <td class="col-start">—</td>
+              <td class="col-due"><span class="due-badge due-none">—</span></td>
+              <td class="col-assignees"><span class="muted">—</span></td>
+              <td class="col-status"><span class="status-badge status-not-started">Not Started</span></td>
+              <td class="col-progress">—</td>
+            </tr>
+
+            <!-- ROW 6: No due date, overdue context -->
+            <tr class="task-row" data-group="none">
+              <td class="col-srno">6</td>
+              <td class="col-check"><input type="checkbox" class="task-check" /></td>
+              <td class="col-name">
+                <div class="task-name-cell">
+                  <span class="subtask-chevron-placeholder"></span>
+                  <span class="task-name-text">Material schedule</span>
+                </div>
+              </td>
+              <td class="col-client"><span class="client-tag" style="--client-c:#5B6FA8">Oak & Marble</span></td>
+              <td class="col-remarks"><span class="remarks-text muted">—</span></td>
+              <td class="col-start">—</td>
+              <td class="col-due"><span class="due-badge due-none">—</span></td>
+              <td class="col-assignees"><span class="muted">—</span></td>
+              <td class="col-status"><span class="status-badge status-not-started">Not Started</span></td>
+              <td class="col-progress">—</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <!-- Add Task Button -->
+        <button class="add-task-btn" id="btn-add-task">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5V11.5M1.5 6.5H11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          New Task
+        </button>
+      </div>
+
+      <!-- SCREEN NAVIGATION (mockup only) -->
+      <div class="mockup-nav">
+        <span class="mockup-nav-label">Mockup screens →</span>
+        <a href="index.html" class="mockup-nav-btn active">Home</a>
+        <a href="client.html" class="mockup-nav-btn">Client View</a>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function toggleGroup(id) {
+      const rows = document.querySelectorAll(`[data-group="${id}"]`);
+      const chevron = document.getElementById(`chevron-${id}`);
+      const isVisible = rows[0] && rows[0].style.display !== 'none';
+      rows.forEach(r => r.style.display = isVisible ? 'none' : '');
+      chevron.style.transform = isVisible ? 'rotate(-90deg)' : '';
+    }
+
+    function toggleSubtasks(id) {
+      const section = document.getElementById(`subtasks-${id}`);
+      const chevron = document.getElementById(`${id}-chevron`);
+      const visible = section.style.display !== 'none';
+      section.style.display = visible ? 'none' : '';
+      chevron.style.transform = visible ? '' : 'rotate(180deg)';
+    }
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
+      document.querySelector(`[data-theme="${theme}"]`).classList.add('active');
+    }
+
+    // Checkbox sync demo
+    document.querySelectorAll('.task-check').forEach(cb => {
+      cb.addEventListener('change', function() {
+        const row = this.closest('tr');
+        if (this.checked) {
+          row.classList.add('task-completed');
+          row.querySelector('.task-name-text').classList.add('task-strikethrough');
+          const badge = row.querySelector('.status-badge');
+          if (badge) { badge.textContent = 'Completed'; badge.className = 'status-badge status-completed'; }
+          const due = row.querySelector('.due-badge');
+          if (due) due.className = 'due-badge due-done';
+        } else {
+          row.classList.remove('task-completed');
+          row.querySelector('.task-name-text').classList.remove('task-strikethrough');
+          const badge = row.querySelector('.status-badge');
+          if (badge) { badge.textContent = 'Ongoing'; badge.className = 'status-badge status-ongoing'; }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
