@@ -14,9 +14,11 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# CORS — permissive in dev; restrict to ALLOWED_ORIGINS env var in production
-allowed_origins_raw = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000")
-allowed_origins = [o.strip() for o in allowed_origins_raw.split(",")]
+allowed_origins_raw = os.getenv("ALLOWED_ORIGINS", "*")
+if allowed_origins_raw == "*":
+    allowed_origins = ["*"]
+else:
+    allowed_origins = [o.strip() for o in allowed_origins_raw.split(",") if o.strip()]
 
 app.add_middleware(
     CORSMiddleware,
