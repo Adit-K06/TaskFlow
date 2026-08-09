@@ -1,0 +1,251 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ── Tailwind theme bridge ─────────────────────────────────────────────────── */
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--text);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--text);
+  --color-primary: var(--accent);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--surface);
+  --color-secondary-foreground: var(--text);
+  --color-muted: var(--surface);
+  --color-muted-foreground: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-foreground: #ffffff;
+  --color-destructive: var(--danger);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--accent);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --font-sans: var(--font-inter), Inter, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), Fraunces, Georgia, serif;
+}
+
+/* ── Theme: Midnight (default) ─────────────────────────────────────────────── */
+:root,
+[data-theme="midnight"] {
+  --bg:         #1B1A17;
+  --surface:    #252320;
+  --border:     #3A362F;
+  --text:       #F2EFE9;
+  --muted:      #A9A29B;
+  --accent:     #B5502F;
+  --success:    #6E7D5C;
+  --danger:     #B5342E;
+
+  --due-overdue: #C44B3B;
+  --due-soon:    #C44B3B;
+  --due-warning: #C9A227;
+  --due-ok:      #6E7D5C;
+  --due-done:    #A9A29B;
+  --due-none:    #A9A29B;
+
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  16px;
+}
+
+/* ── Theme: Daylight ───────────────────────────────────────────────────────── */
+[data-theme="daylight"] {
+  --bg:         #F7F3EC;
+  --surface:    #FFFFFF;
+  --border:     #DDD8CF;
+  --text:       #242119;
+  --muted:      #6B655A;
+  --accent:     #A6532C;
+  --success:    #516244;
+  --danger:     #B5342E;
+
+  --due-overdue: #B5342E;
+  --due-soon:    #B5342E;
+  --due-warning: #9E7C0A;
+  --due-ok:      #516244;
+  --due-done:    #6B655A;
+  --due-none:    #6B655A;
+}
+
+/* ── Theme: Terracotta ─────────────────────────────────────────────────────── */
+[data-theme="terracotta"] {
+  --bg:         #2A1A14;
+  --surface:    #3A2218;
+  --border:     #5C3828;
+  --text:       #F5E8DF;
+  --muted:      #B89080;
+  --accent:     #E07040;
+  --success:    #7A8C5C;
+  --danger:     #C44040;
+
+  --due-overdue: #C44040;
+  --due-soon:    #C44040;
+  --due-warning: #C9A227;
+  --due-ok:      #7A8C5C;
+  --due-done:    #B89080;
+  --due-none:    #B89080;
+}
+
+/* ── Theme: Sage & Linen ───────────────────────────────────────────────────── */
+[data-theme="sage"] {
+  --bg:         #F4F1EB;
+  --surface:    #FAFAF7;
+  --border:     #D6D3C8;
+  --text:       #2C2C28;
+  --muted:      #7A7A6A;
+  --accent:     #6A8C5C;
+  --success:    #6A8C5C;
+  --danger:     #B5342E;
+
+  --due-overdue: #B5342E;
+  --due-soon:    #B5342E;
+  --due-warning: #9E7C0A;
+  --due-ok:      #6A8C5C;
+  --due-done:    #7A7A6A;
+  --due-none:    #7A7A6A;
+}
+
+/* ── Theme: Slate Blue ─────────────────────────────────────────────────────── */
+[data-theme="slate"] {
+  --bg:         #1A1D2A;
+  --surface:    #252838;
+  --border:     #363A54;
+  --text:       #E8EAF4;
+  --muted:      #9094B4;
+  --accent:     #5B6FA8;
+  --success:    #5C8A6E;
+  --danger:     #B84040;
+
+  --due-overdue: #B84040;
+  --due-soon:    #B84040;
+  --due-warning: #C9A227;
+  --due-ok:      #5C8A6E;
+  --due-done:    #9094B4;
+  --due-none:    #9094B4;
+}
+
+/* ── Base layer ────────────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    box-sizing: border-box;
+    border-color: var(--border);
+  }
+
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: Inter, var(--font-inter), system-ui, sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3 {
+    font-family: Fraunces, var(--font-fraunces), Georgia, serif;
+  }
+
+  /* Tabular numbers for dates and serial numbers */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted);
+  }
+}
+
+/* ── Utilities ─────────────────────────────────────────────────────────────── */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Due-date color utilities */
+  .text-due-overdue { color: var(--due-overdue); }
+  .text-due-soon    { color: var(--due-soon); }
+  .text-due-warning { color: var(--due-warning); }
+  .text-due-ok      { color: var(--due-ok); }
+  .text-due-done    { color: var(--due-done); }
+  .text-due-none    { color: var(--due-none); }
+
+  .bg-due-overdue { background-color: var(--due-overdue); }
+  .bg-due-soon    { background-color: var(--due-soon); }
+  .bg-due-warning { background-color: var(--due-warning); }
+  .bg-due-ok      { background-color: var(--due-ok); }
+  .bg-due-done    { background-color: var(--due-done); }
+
+  /* Surface/token utilities */
+  .bg-surface  { background-color: var(--surface); }
+  .bg-appbg   { background-color: var(--bg); }
+  .text-muted  { color: var(--muted); }
+  .text-accent { color: var(--accent); }
+  .border-tf   { border-color: var(--border); }
+
+  /* Flash animation for banner scroll-to */
+  @keyframes rowFlash {
+    0%, 100% { background-color: transparent; }
+    30%       { background-color: color-mix(in srgb, var(--accent) 18%, transparent); }
+  }
+  .row-flash {
+    animation: rowFlash 1.5s ease-out;
+  }
+
+  /* Prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ── Mobile: task table → card stack ─────────────────────────────────────── */
+  @media (max-width: 640px) {
+    /* Hide table structure, show each row as a card */
+    table.task-table thead {
+      display: none;
+    }
+    table.task-table tbody {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 0.5rem;
+    }
+    table.task-table tr.task-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 0.5rem;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      background-color: var(--surface);
+    }
+    table.task-table td {
+      display: block;
+    }
+  }
+}
