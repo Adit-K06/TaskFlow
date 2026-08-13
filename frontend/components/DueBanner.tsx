@@ -1,12 +1,12 @@
-// DueBanner — dismissible session banner showing today/tomorrow due counts
+// DueBanner — in-memory banner for tasks due today & tomorrow
+// - Dismiss lasts only until: page refresh, OR a new urgent task is added
+// - No localStorage/sessionStorage — always re-evaluates from live task data
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X, Bell } from "lucide-react";
 import { Task } from "@/lib/types";
 import { differenceInCalendarDays, parseISO } from "date-fns";
-
-const BANNER_KEY = "tf_banner_dismissed";
 
 interface DueBannerProps {
   tasks: Task[];
@@ -15,12 +15,9 @@ interface DueBannerProps {
 }
 
 export default function DueBanner({ tasks, onScrollToToday, onScrollToTomorrow }: DueBannerProps) {
-  const [dismissed, setDismissed] = useState(true); // start dismissed, check on mount
-
-  useEffect(() => {
-    const val = sessionStorage.getItem(BANNER_KEY);
-    if (!val) setDismissed(false);
-  }, []);
+  const [dismissed, setDismissed] = useState(false);
+  // Track the previous urgent count so we can re-show when it increases
+  const prevUrgentCount = useRef(0);
 
   const today = tasks.filter(
     (t) =>
@@ -36,49 +33,57 @@ export default function DueBanner({ tasks, onScrollToToday, onScrollToTomorrow }
       differenceInCalendarDays(parseISO(t.due_date), new Date()) === 1
   ).length;
 
-  if (dismissed || (today === 0 && tomorrow === 0)) return null;
+  const urgentCount = today + tomorrow;
 
-  function dismiss() {
-    sessionStorage.setItem(BANNER_KEY, "1");
-    setDismissed(true);
-  }
+  // Re-show banner whenever a new urgent task appears (count increases)
+  useEffect(() => {
+    if (urgentCount > prevUrgentCount.current) {
+      setDismissed(false);
+    }
+    prevUrgentCount.current = urgentCount;
+  }, [urgentCount]);
+
+  if (dismissed || urgentCount === 0) return null;
 
   return (
     <div
       className="flex items-center gap-3 px-4 py-3 rounded-xl border mb-4 text-sm relative"
       style={{
         backgroundColor: "rgba(181,80,47,0.12)",
-        borderColor: "rgba(181,80,47,0.35)",
+        borderColor: "rgba(181,80,47,0.40)",
         color: "var(--text)",
+        animation: "fadeIn 0.3s ease",
       }}
     >
-      <Bell size={14} style={{ color: "var(--accent)", flexShrink: 0 }} />
+      <Bell size={15} className="shrink-0" style={{ color: "var(--accent)" }} />
 
-      <p className="flex-1">
+      <p className="flex-1 leading-relaxed">
         You have{" "}
         {today > 0 && (
           <>
             <button
+              id="banner-scroll-today"
               onClick={onScrollToToday}
               className="font-bold underline underline-offset-2 hover:no-underline transition-all"
               style={{ color: "var(--accent)" }}
             >
               {today} task{today !== 1 ? "s" : ""}
             </button>{" "}
-            due today
+            due <strong>today</strong>
           </>
         )}
         {today > 0 && tomorrow > 0 && " and "}
         {tomorrow > 0 && (
           <>
             <button
+              id="banner-scroll-tomorrow"
               onClick={onScrollToTomorrow}
               className="font-bold underline underline-offset-2 hover:no-underline transition-all"
               style={{ color: "var(--due-warning)" }}
             >
               {tomorrow} task{tomorrow !== 1 ? "s" : ""}
             </button>{" "}
-            due tomorrow
+            due <strong>tomorrow</strong>
           </>
         )}{" "}
         across all clients.
@@ -86,7 +91,7 @@ export default function DueBanner({ tasks, onScrollToToday, onScrollToTomorrow }
 
       <button
         id="banner-dismiss-btn"
-        onClick={dismiss}
+        onClick={() => setDismissed(true)}
         className="p-1 rounded-full hover:bg-white/10 transition-colors shrink-0"
         style={{ color: "var(--muted)" }}
         aria-label="Dismiss banner"

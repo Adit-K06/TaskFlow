@@ -1,4 +1,4 @@
-// MonthGroup — collapsible monthly task group header with task rows inside
+// YearGroup (formerly MonthGroup) — collapsible yearly task group header with task rows inside
 "use client";
 
 import { useState } from "react";
@@ -46,7 +46,7 @@ export default function MonthGroup({
         >
           <div className="flex items-center justify-between">
             <button
-              id={`month-group-${monthKey}`}
+              id={`year-group-${monthKey}`}
               onClick={() => setCollapsed((c) => !c)}
               className="flex items-center gap-2 group flex-1"
             >

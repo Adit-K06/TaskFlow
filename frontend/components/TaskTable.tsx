@@ -1,10 +1,10 @@
-// TaskTable — groups tasks by month, renders MonthGroup rows, manages NewTaskModal & NewClientModal
+// TaskTable — groups tasks by year, renders MonthGroup rows, manages NewTaskModal & NewClientModal
 "use client";
 
 import { useState, useCallback } from "react";
 import { Loader2, ClipboardList, Plus, FolderPlus, WifiOff, RefreshCw, MousePointerClick } from "lucide-react";
 import { Task, Client } from "@/lib/types";
-import { groupByMonth } from "@/lib/dateUtils";
+import { groupByYear } from "@/lib/dateUtils";
 import { FilterState } from "./FilterBar";
 import MonthGroup from "./MonthGroup";
 import NewTaskModal from "./NewTaskModal";
@@ -67,7 +67,7 @@ export default function TaskTable({
   const [showNewClientModal, setShowNewClientModal] = useState(false);
 
   const filtered = applyFilters(tasks, filters);
-  const groups = groupByMonth(filtered);
+  const groups = groupByYear(filtered);
 
   const handleUpdate = useCallback(
     (id: string, patch: Partial<Task>) => {
@@ -268,7 +268,7 @@ export default function TaskTable({
                 {TABLE_HEADERS.map((h) => (
                   <th
                     key={h.label}
-                    className={`px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-widest ${h.className}`}
+                    className={`px-3 py-2.5 text-left text-xs font-bold uppercase tracking-wider ${h.className}`}
                     style={{ color: "var(--muted)" }}
                   >
                     {h.label}

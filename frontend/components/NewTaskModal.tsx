@@ -191,6 +191,7 @@ export default function NewTaskModal({
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Floor plan layout & 3D renders"
                 autoFocus
+                autoComplete="off"
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none transition-colors"
                 style={{ backgroundColor: "var(--bg)", borderColor: "var(--border)", color: "var(--text)" }}
               />
@@ -207,6 +208,7 @@ export default function NewTaskModal({
                 onChange={(e) => setRemarks(e.target.value)}
                 placeholder="Notes or details (defaults to - if left empty)"
                 rows={2}
+                autoComplete="off"
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none resize-none"
                 style={{ backgroundColor: "var(--bg)", borderColor: "var(--border)", color: "var(--text)" }}
               />
@@ -253,6 +255,7 @@ export default function NewTaskModal({
                 value={assigneesRaw}
                 onChange={(e) => setAssigneesRaw(e.target.value)}
                 placeholder="e.g. Adit, Riya"
+                autoComplete="off"
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none"
                 style={{ backgroundColor: "var(--bg)", borderColor: "var(--border)", color: "var(--text)" }}
               />

@@ -88,6 +88,7 @@ export default function NewClientModal({ onClose, onCreated }: NewClientModalPro
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Skyline Residence"
               autoFocus
+              autoComplete="off"
               className="w-full rounded-lg border px-3 py-2 text-sm outline-none transition-colors focus:border-[var(--accent)]"
               style={{
                 backgroundColor: "var(--bg)",
@@ -111,6 +112,7 @@ export default function NewClientModal({ onClose, onCreated }: NewClientModalPro
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               placeholder="e.g. 3D Design, 2D Drawings"
+              autoComplete="off"
               className="w-full rounded-lg border px-3 py-2 text-sm outline-none transition-colors focus:border-[var(--accent)]"
               style={{
                 backgroundColor: "var(--bg)",

@@ -33,8 +33,14 @@ export interface Subtask {
   id: string;
   task_id: string;
   name: string;
+  remarks: string | null;
+  start_date: string | null; // "YYYY-MM-DD"
+  due_date: string | null;   // "YYYY-MM-DD"
+  assignees: string[];
+  status: TaskStatus;
   is_completed: boolean;
   created_at: string;
+  updated_at: string;
 }
 
 // ── Request shapes ─────────────────────────────────────────────────────────────
@@ -74,11 +80,21 @@ export interface TaskUpdate {
 
 export interface SubtaskCreate {
   name: string;
+  remarks?: string | null;
+  start_date?: string | null;
+  due_date?: string | null;
+  assignees?: string[];
+  status?: TaskStatus;
   is_completed?: boolean;
 }
 
 export interface SubtaskUpdate {
   name?: string;
+  remarks?: string | null;
+  start_date?: string | null;
+  due_date?: string | null;
+  assignees?: string[];
+  status?: TaskStatus;
   is_completed?: boolean;
 }
 

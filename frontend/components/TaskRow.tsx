@@ -31,13 +31,16 @@ function InlineText({
   multiline,
   strikethrough,
   muted,
+  maxLength,
 }: {
   value: string;
   onSave: (v: string) => void;
   placeholder?: string;
   multiline?: boolean;
+  onChange?: (v: string) => void;
   strikethrough?: boolean;
   muted?: boolean;
+  maxLength?: number;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -69,22 +72,33 @@ function InlineText({
 
   if (editing) {
     return multiline ? (
-      <textarea
-        ref={textareaRef}
-        value={draft}
-        rows={2}
-        onChange={(e) => setDraft(e.target.value)}
-        onBlur={save}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") { setEditing(false); setDraft(value); }
-        }}
-        className={sharedInputClass + " resize-none"}
-        style={sharedInputStyle}
-      />
+      <div className="relative">
+        <textarea
+          ref={textareaRef}
+          value={draft}
+          rows={3}
+          maxLength={maxLength}
+          autoComplete="off"
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={save}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") { setEditing(false); setDraft(value); }
+          }}
+          className={sharedInputClass + " resize-none"}
+          style={sharedInputStyle}
+        />
+        {maxLength && (
+          <span className="absolute bottom-0 right-0 text-[9px]" style={{ color: "var(--muted)" }}>
+            {draft.length}/{maxLength}
+          </span>
+        )}
+      </div>
     ) : (
       <input
         ref={inputRef}
         value={draft}
+        maxLength={maxLength}
+        autoComplete="off"
         onChange={(e) => setDraft(e.target.value)}
         onBlur={save}
         onKeyDown={(e) => {
@@ -102,7 +116,7 @@ function InlineText({
     <span
       onClick={start}
       title={isEmpty ? `Click to add ${placeholder}` : value}
-      className="block text-sm cursor-text truncate select-none group-cell"
+      className={`block text-sm cursor-text select-none group-cell ${multiline ? "whitespace-pre-wrap line-clamp-3" : "truncate"}`}
       style={{
         color: isEmpty ? "var(--muted)" : muted ? "var(--muted)" : "var(--text)",
         textDecoration: strikethrough && !isEmpty ? "line-through" : "none",
@@ -384,6 +398,8 @@ export default function TaskRow({
             onSave={(v) => patch({ remarks: v || null })}
             placeholder="—"
             muted
+            multiline
+            maxLength={300}
           />
         </td>
 

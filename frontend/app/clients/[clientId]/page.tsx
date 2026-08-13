@@ -1,7 +1,7 @@
 // Client task view — /clients/[clientId] — scoped task list for one client
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -11,6 +11,8 @@ import { Task } from "@/lib/types";
 import Sidebar from "@/components/Sidebar";
 import FilterBar, { FilterState } from "@/components/FilterBar";
 import TaskTable from "@/components/TaskTable";
+import DueBanner from "@/components/DueBanner";
+import { differenceInCalendarDays, parseISO } from "date-fns";
 
 const DEFAULT_FILTERS: FilterState = {
   statuses: [],
@@ -23,6 +25,7 @@ const DEFAULT_FILTERS: FilterState = {
 export default function ClientPage() {
   const params = useParams();
   const clientId = params.clientId as string;
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const { clients, loading: clientsLoading, refetch: refetchClients } = useClients();
   const { tasks, loading: tasksLoading, error, refetch: refetchTasks } = useTasks(clientId);
@@ -40,6 +43,25 @@ export default function ClientPage() {
     refetchClients();
     refetchTasks();
   }, [refetchClients, refetchTasks]);
+
+  // Scroll to the first task due on a given day offset (0 = today, 1 = tomorrow)
+  function scrollToFirstTaskDueIn(dayOffset: number) {
+    const target = displayTasks.find(
+      (t) =>
+        !t.is_completed &&
+        t.due_date &&
+        differenceInCalendarDays(parseISO(t.due_date), new Date()) === dayOffset
+    );
+    if (!target) return;
+    const el = document.getElementById(`task-row-${target.id}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Brief highlight flash
+      el.style.transition = "background-color 0.3s";
+      el.style.backgroundColor = "rgba(181,80,47,0.25)";
+      setTimeout(() => { el.style.backgroundColor = ""; }, 1500);
+    }
+  }
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
@@ -119,7 +141,14 @@ export default function ClientPage() {
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-4">
+          {/* Due date banner — shows when tasks are due today or tomorrow */}
+          <DueBanner
+            tasks={displayTasks}
+            onScrollToToday={() => scrollToFirstTaskDueIn(0)}
+            onScrollToTomorrow={() => scrollToFirstTaskDueIn(1)}
+          />
+
           {/* Filter bar */}
           <div className="mb-4">
             <FilterBar filters={filters} onChange={setFilters} />

@@ -1,4 +1,4 @@
-// Expanded subtask section below a task row — loads, lists, and adds subtasks
+// Expanded subtask section — loads, lists subtasks with full field editing, and adds new subtasks
 "use client";
 
 import { useState } from "react";
@@ -19,7 +19,6 @@ export default function SubtaskSection({ taskId, onSubtasksChange }: SubtaskSect
   const [adding, setAdding] = useState(false);
 
   async function handleToggle(id: string, completed: boolean) {
-    // Optimistic update
     const updated = subtasks.map((s) =>
       s.id === id ? { ...s, is_completed: completed } : s
     );
@@ -28,7 +27,7 @@ export default function SubtaskSection({ taskId, onSubtasksChange }: SubtaskSect
       await api.subtasks.update(id, { is_completed: completed });
       refetch();
     } catch {
-      refetch(); // rollback via refetch
+      refetch();
     }
   }
 
@@ -38,12 +37,17 @@ export default function SubtaskSection({ taskId, onSubtasksChange }: SubtaskSect
       refetch();
       onSubtasksChange?.(subtasks.filter((s) => s.id !== id));
     } catch {
-      // silent — subtask still exists
+      // silent
     }
   }
 
   function handleRename(id: string, name: string) {
     const updated = subtasks.map((s) => (s.id === id ? { ...s, name } : s));
+    onSubtasksChange?.(updated);
+  }
+
+  function handleUpdate(id: string, patch: Partial<Subtask>) {
+    const updated = subtasks.map((s) => (s.id === id ? { ...s, ...patch } : s));
     onSubtasksChange?.(updated);
   }
 
@@ -56,7 +60,7 @@ export default function SubtaskSection({ taskId, onSubtasksChange }: SubtaskSect
       setNewName("");
       refetch();
     } catch {
-      // keep input value so user can retry
+      // keep input so user can retry
     } finally {
       setAdding(false);
     }
@@ -73,19 +77,43 @@ export default function SubtaskSection({ taskId, onSubtasksChange }: SubtaskSect
 
   return (
     <div
-      className="px-2 py-1 border-t"
+      className="py-1 border-t"
       style={{ borderColor: "var(--border)", backgroundColor: "rgba(0,0,0,0.12)" }}
     >
-      {/* Subtask list */}
-      {subtasks.map((s) => (
-        <SubtaskRow
-          key={s.id}
-          subtask={s}
-          onToggle={handleToggle}
-          onDelete={handleDelete}
-          onRename={handleRename}
-        />
-      ))}
+      {/* Column headers for subtask grid */}
+      {subtasks.length > 0 && (
+        <div
+          className="grid gap-x-2 px-3 pb-1 mb-0.5"
+          style={{
+            gridTemplateColumns: "1.5rem 1fr 160px 72px 72px 90px 80px 20px",
+            borderBottom: "1px solid var(--border)",
+          }}
+        >
+          {["", "Subtask", "Remarks", "Start", "Due", "Assignees", "Status", ""].map((h, i) => (
+            <span
+              key={i}
+              className="text-[9px] font-bold uppercase tracking-widest"
+              style={{ color: "var(--muted)" }}
+            >
+              {h}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Subtask rows */}
+      <div className="flex flex-col gap-0.5 py-1">
+        {subtasks.map((s) => (
+          <SubtaskRow
+            key={s.id}
+            subtask={s}
+            onToggle={handleToggle}
+            onDelete={handleDelete}
+            onRename={handleRename}
+            onUpdate={handleUpdate}
+          />
+        ))}
+      </div>
 
       {/* Add subtask input */}
       <div className="flex items-center gap-2 px-3 py-1.5">
@@ -95,6 +123,7 @@ export default function SubtaskSection({ taskId, onSubtasksChange }: SubtaskSect
           type="text"
           placeholder="Add subtask…"
           value={newName}
+          autoComplete="off"
           onChange={(e) => setNewName(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") handleAdd();

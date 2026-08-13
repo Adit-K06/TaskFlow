@@ -90,10 +90,24 @@ class Subtask(Base):
         ForeignKey("tasks.id", ondelete="CASCADE"), nullable=False
     )
     name: Mapped[str] = mapped_column(String(500), nullable=False)
+    remarks: Mapped[str | None] = mapped_column(Text, nullable=True)
+    start_date: Mapped[Date | None] = mapped_column(Date, nullable=True)
+    due_date: Mapped[Date | None] = mapped_column(Date, nullable=True)
+    assignees: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    status: Mapped[TaskStatus] = mapped_column(
+        SAEnum(TaskStatus, name="taskstatus", values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+        default=TaskStatus.not_started,
+    )
     is_completed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    # No updated_at on Subtask per design.md Section 2.3
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[DateTime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
     )
 
     task: Mapped["Task"] = relationship("Task", back_populates="subtasks")

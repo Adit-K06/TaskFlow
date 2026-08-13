@@ -42,6 +42,48 @@ export function monthLabelFromKey(key: string): string {
   return format(parseISO(`${key}-01`), "MMMM yyyy");
 }
 
+/** Returns the year key "YYYY" from a due_date ISO string, or "no-date". */
+export function yearKey(dueDate: string | null): string {
+  if (!dueDate) return "no-date";
+  return dueDate.slice(0, 4); // "YYYY"
+}
+
+/** Year label from key, e.g. "2026" → "2026" */
+export function yearLabelFromKey(key: string): string {
+  if (key === "no-date") return "No Due Date";
+  return key;
+}
+
+/**
+ * Group tasks by their due_date year.
+ * Returns an ordered array of { key, label, tasks } — chronological, "no-date" last.
+ */
+export function groupByYear(
+  tasks: Task[]
+): { key: string; label: string; tasks: Task[] }[] {
+  const map = new Map<string, Task[]>();
+
+  for (const task of tasks) {
+    const key = yearKey(task.due_date);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(task);
+  }
+
+  const dated = Array.from(map.entries())
+    .filter(([k]) => k !== "no-date")
+    .sort(([a], [b]) => a.localeCompare(b));
+
+  const noDue = map.has("no-date")
+    ? [["no-date", map.get("no-date")!] as [string, Task[]]]
+    : [];
+
+  return [...dated, ...noDue].map(([key, tasks]) => ({
+    key,
+    label: yearLabelFromKey(key),
+    tasks,
+  }));
+}
+
 /**
  * Group tasks by their due_date month.
  * Returns an ordered array of { key, label, tasks } — chronological, "no-date" last.

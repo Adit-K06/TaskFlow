@@ -145,6 +145,7 @@ export default function EditClientModal({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   autoFocus
+                  autoComplete="off"
                   className="w-full rounded-lg border px-3 py-2 text-sm outline-none"
                   style={{ backgroundColor: "var(--bg)", borderColor: "var(--border)", color: "var(--text)" }}
                 />
@@ -159,6 +160,7 @@ export default function EditClientModal({
                   type="text"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
+                  autoComplete="off"
                   className="w-full rounded-lg border px-3 py-2 text-sm outline-none"
                   style={{ backgroundColor: "var(--bg)", borderColor: "var(--border)", color: "var(--text)" }}
                 />
