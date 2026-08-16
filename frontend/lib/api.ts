@@ -5,6 +5,7 @@ import {
   Client, ClientCreate, ClientUpdate,
   Task, TaskCreate, TaskUpdate,
   Subtask, SubtaskCreate, SubtaskUpdate,
+  Note, NoteUpdate,
 } from "./types";
 
 const rawBase = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").trim();
@@ -71,5 +72,31 @@ export const api = {
         body: JSON.stringify(body),
       }),
     delete: (id: string) => request<void>(`/subtasks/${id}`, { method: "DELETE" }),
+  },
+
+  // ── Notes ──────────────────────────────────────────────────────────────────
+  notes: {
+    get: () => request<Note>("/notes"),
+    update: (body: NoteUpdate) =>
+      request<Note>("/notes", { method: "PATCH", body: JSON.stringify(body) }),
+  },
+
+  // ── Backup ─────────────────────────────────────────────────────────────────
+  backup: {
+    /** Fetches /backup/export and triggers a browser file download. */
+    download: async () => {
+      const res = await fetch(`${BASE}/backup/export`);
+      if (!res.ok) throw new ApiError(res.status, "Backup failed");
+      const blob = await res.blob();
+      const disposition = res.headers.get("Content-Disposition") ?? "";
+      const match = disposition.match(/filename="(.+?)"/);
+      const filename = match?.[1] ?? `taskflow_backup_${Date.now()}.json`;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    },
   },
 };

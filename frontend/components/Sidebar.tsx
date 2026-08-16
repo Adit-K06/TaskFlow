@@ -15,12 +15,14 @@ import {
   Loader2,
   Menu,
   X,
+  Download,
 } from "lucide-react";
 import { useClients } from "@/hooks/useClients";
 import { Client } from "@/lib/types";
 import NewClientModal from "./NewClientModal";
 import EditClientModal from "./EditClientModal";
 import ConfirmDialog from "./ConfirmDialog";
+import NotesPanel from "./NotesPanel";
 import { api } from "@/lib/api";
 
 const NAV_ITEMS = [
@@ -62,6 +64,18 @@ export default function Sidebar() {
   const [deletingClientId, setDeletingClientId] = useState<string | null>(null);
   const [showTheme, setShowTheme] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [backingUp, setBackingUp] = useState(false);
+
+  async function downloadBackup() {
+    setBackingUp(true);
+    try {
+      await api.backup.download();
+    } catch {
+      // user will see nothing downloaded — tolerable silent failure
+    } finally {
+      setBackingUp(false);
+    }
+  }
 
   async function executeDeleteClient(client: Client) {
     setDeletingClientId(client.id);
@@ -231,7 +245,10 @@ export default function Sidebar() {
         )}
       </div>
 
-      {/* Bottom: Theme + Settings */}
+      {/* Notes Panel */}
+      <NotesPanel />
+
+      {/* Bottom: Theme + Settings + Backup */}
       <div className="border-t px-3 py-3 relative" style={{ borderColor: "var(--border)" }}>
         <button
           id="theme-toggle-btn"
@@ -268,6 +285,21 @@ export default function Sidebar() {
             ))}
           </div>
         )}
+
+        {/* Backup download button */}
+        <button
+          id="backup-download-btn"
+          onClick={downloadBackup}
+          disabled={backingUp}
+          className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-xs transition-colors hover:bg-white/5 disabled:opacity-50"
+          style={{ color: "var(--muted)" }}
+          title="Download a full JSON backup of all your data"
+        >
+          {backingUp
+            ? <Loader2 size={13} className="animate-spin" />
+            : <Download size={13} />}
+          {backingUp ? "Backing up…" : "Download Backup"}
+        </button>
       </div>
     </div>
   );

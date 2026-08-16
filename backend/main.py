@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from app.routers import clients, tasks, subtasks
+from app.routers import clients, tasks, subtasks, notes, backup
 
 load_dotenv()
 
@@ -32,10 +32,14 @@ app.add_middleware(
 app.include_router(clients.router)
 app.include_router(tasks.router)
 app.include_router(subtasks.router)
+app.include_router(notes.router)
+app.include_router(backup.router)
 
 app.include_router(clients.router, prefix="/api")
 app.include_router(tasks.router, prefix="/api")
 app.include_router(subtasks.router, prefix="/api")
+app.include_router(notes.router, prefix="/api")
+app.include_router(backup.router, prefix="/api")
 
 
 @app.get("/health", tags=["Health"])

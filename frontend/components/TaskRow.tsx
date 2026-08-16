@@ -129,7 +129,7 @@ function InlineText({
   );
 }
 
-// ── Inline date picker ───────────────────────────────────────────────────────────
+// ── Inline date picker — click to open native calendar, no typing required ─────
 function InlineDatePicker({
   value,
   onSave,
@@ -141,59 +141,49 @@ function InlineDatePicker({
   dueColorClass?: string;
   tooltip?: string;
 }) {
-  const [editing, setEditing] = useState(false);
   const ref = useRef<HTMLInputElement>(null);
 
-  function start() {
-    setEditing(true);
-    setTimeout(() => {
-      ref.current?.focus();
-      ref.current?.showPicker?.();
-    }, 50);
-  }
-
-  if (editing) {
-    return (
-      <input
-        ref={ref}
-        type="date"
-        defaultValue={value ?? ""}
-        autoFocus
-        onBlur={(e) => {
-          setEditing(false);
-          onSave(e.target.value || null);
-        }}
-        onChange={(e) => {
-          if (e.target.value) {
-            setEditing(false);
-            onSave(e.target.value);
-          }
-        }}
-        className="w-full text-xs bg-transparent border-b outline-none tabular-nums"
-        style={{ borderColor: "var(--accent)", color: "var(--text)" }}
-      />
-    );
+  function openPicker() {
+    ref.current?.showPicker?.();
   }
 
   const display = formatShort(value);
   const isEmpty = !value;
 
   return (
-    <span
-      onClick={start}
-      className="text-xs cursor-pointer tabular-nums"
-      style={{
-        color: isEmpty
-          ? "var(--muted)"
-          : dueColorClass
-          ? `var(--${dueColorClass})`
-          : "var(--muted)",
-        fontStyle: isEmpty ? "italic" : "normal",
-      }}
-      title={tooltip ?? (isEmpty ? "Click to set date" : display)}
-    >
-      {display}
-    </span>
+    <div className="relative cursor-pointer" onClick={openPicker} title={tooltip ?? (isEmpty ? "Click to pick date" : display)}>
+      {/* Formatted display text */}
+      <span
+        className="text-xs tabular-nums block"
+        style={{
+          color: isEmpty
+            ? "var(--muted)"
+            : dueColorClass
+            ? `var(--${dueColorClass})`
+            : "var(--muted)",
+          fontStyle: isEmpty ? "italic" : "normal",
+        }}
+      >
+        {display}
+      </span>
+
+      {/* Hidden date input — opened programmatically via showPicker() */}
+      <input
+        ref={ref}
+        type="date"
+        value={value ?? ""}
+        onChange={(e) => onSave(e.target.value || null)}
+        style={{
+          position: "absolute",
+          opacity: 0,
+          pointerEvents: "none",
+          width: "1px",
+          height: "1px",
+          top: 0,
+          left: 0,
+        }}
+      />
+    </div>
   );
 }
 

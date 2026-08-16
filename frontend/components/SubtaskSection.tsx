@@ -1,7 +1,7 @@
 // Expanded subtask section — loads, lists subtasks with full field editing, and adds new subtasks
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Loader2 } from "lucide-react";
 import { Subtask } from "@/lib/types";
 import { api } from "@/lib/api";
@@ -14,41 +14,52 @@ interface SubtaskSectionProps {
 }
 
 export default function SubtaskSection({ taskId, onSubtasksChange }: SubtaskSectionProps) {
-  const { subtasks, loading, refetch } = useSubtasks(taskId);
+  const { subtasks: fetched, loading, refetch } = useSubtasks(taskId);
   const [newName, setNewName] = useState("");
   const [adding, setAdding] = useState(false);
 
-  async function handleToggle(id: string, completed: boolean) {
-    const updated = subtasks.map((s) =>
-      s.id === id ? { ...s, is_completed: completed } : s
-    );
+  // Local optimistic copy — updated instantly; synced from server on fetch/refetch
+  const [local, setLocal] = useState<Subtask[]>([]);
+  useEffect(() => { setLocal(fetched); }, [fetched]);
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+
+  function applyLocal(updated: Subtask[]) {
+    setLocal(updated);
     onSubtasksChange?.(updated);
+  }
+
+  // ── Handlers ─────────────────────────────────────────────────────────────────
+
+  function handleUpdate(id: string, patch: Partial<Subtask>) {
+    // Instant optimistic update — no awaiting
+    applyLocal(local.map((s) => (s.id === id ? { ...s, ...patch } : s)));
+  }
+
+  function handleRename(id: string, name: string) {
+    applyLocal(local.map((s) => (s.id === id ? { ...s, name } : s)));
+  }
+
+  async function handleToggle(id: string, completed: boolean) {
+    // Optimistic
+    applyLocal(local.map((s) => (s.id === id ? { ...s, is_completed: completed } : s)));
     try {
       await api.subtasks.update(id, { is_completed: completed });
       refetch();
     } catch {
-      refetch();
+      refetch(); // revert via refetch on error
     }
   }
 
   async function handleDelete(id: string) {
+    // Optimistic remove
+    applyLocal(local.filter((s) => s.id !== id));
     try {
       await api.subtasks.delete(id);
       refetch();
-      onSubtasksChange?.(subtasks.filter((s) => s.id !== id));
     } catch {
-      // silent
+      refetch(); // restore if delete failed
     }
-  }
-
-  function handleRename(id: string, name: string) {
-    const updated = subtasks.map((s) => (s.id === id ? { ...s, name } : s));
-    onSubtasksChange?.(updated);
-  }
-
-  function handleUpdate(id: string, patch: Partial<Subtask>) {
-    const updated = subtasks.map((s) => (s.id === id ? { ...s, ...patch } : s));
-    onSubtasksChange?.(updated);
   }
 
   async function handleAdd() {
@@ -66,7 +77,9 @@ export default function SubtaskSection({ taskId, onSubtasksChange }: SubtaskSect
     }
   }
 
-  if (loading) {
+  // ── Render ────────────────────────────────────────────────────────────────────
+
+  if (loading && local.length === 0) {
     return (
       <div className="flex items-center gap-2 px-6 py-2">
         <Loader2 size={12} className="animate-spin" style={{ color: "var(--muted)" }} />
@@ -80,12 +93,12 @@ export default function SubtaskSection({ taskId, onSubtasksChange }: SubtaskSect
       className="py-1 border-t"
       style={{ borderColor: "var(--border)", backgroundColor: "rgba(0,0,0,0.12)" }}
     >
-      {/* Column headers for subtask grid */}
-      {subtasks.length > 0 && (
+      {/* Column headers */}
+      {local.length > 0 && (
         <div
-          className="grid gap-x-2 px-3 pb-1 mb-0.5"
+          className="grid gap-x-3 px-3 pb-1 mb-0.5"
           style={{
-            gridTemplateColumns: "1.5rem 1fr 160px 72px 72px 90px 80px 20px",
+            gridTemplateColumns: "1.5rem 1fr 1fr 90px 90px 120px 100px 24px",
             borderBottom: "1px solid var(--border)",
           }}
         >
@@ -101,9 +114,9 @@ export default function SubtaskSection({ taskId, onSubtasksChange }: SubtaskSect
         </div>
       )}
 
-      {/* Subtask rows */}
+      {/* Subtask rows — rendered from local optimistic state */}
       <div className="flex flex-col gap-0.5 py-1">
-        {subtasks.map((s) => (
+        {local.map((s) => (
           <SubtaskRow
             key={s.id}
             subtask={s}
@@ -115,7 +128,7 @@ export default function SubtaskSection({ taskId, onSubtasksChange }: SubtaskSect
         ))}
       </div>
 
-      {/* Add subtask input */}
+      {/* Add subtask */}
       <div className="flex items-center gap-2 px-3 py-1.5">
         <Plus size={11} style={{ color: "var(--muted)" }} />
         <input

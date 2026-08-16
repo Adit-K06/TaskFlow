@@ -111,3 +111,17 @@ class Subtask(Base):
     )
 
     task: Mapped["Task"] = relationship("Task", back_populates="subtasks")
+
+
+class Note(Base):
+    """Global scratchpad — always exactly one row (id=1)."""
+    __tablename__ = "notes"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, default=1)
+    content: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    updated_at: Mapped[DateTime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )

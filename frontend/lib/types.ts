@@ -43,6 +43,16 @@ export interface Subtask {
   updated_at: string;
 }
 
+export interface Note {
+  id: number;
+  content: string;
+  updated_at: string;
+}
+
+export interface NoteUpdate {
+  content: string;
+}
+
 // ── Request shapes ─────────────────────────────────────────────────────────────
 
 export interface ClientCreate {

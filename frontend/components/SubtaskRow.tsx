@@ -1,7 +1,7 @@
 // Single subtask row — checkbox, inline-editable fields (name, remarks, dates, assignees, status), delete
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Trash2, ChevronDown } from "lucide-react";
 import { Subtask, TaskStatus } from "@/lib/types";
 import { api } from "@/lib/api";
@@ -27,7 +27,7 @@ const STATUS_COLORS: Record<TaskStatus, string> = {
   completed: "var(--due-done)",
 };
 
-// Tiny inline text editor for subtask cells
+// ── Inline text editor (name / remarks / assignees) ────────────────────────────
 function SubInlineText({
   value,
   onSave,
@@ -45,6 +45,11 @@ function SubInlineText({
   const [draft, setDraft] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Keep draft in sync when value prop changes externally (optimistic update / refetch)
+  useEffect(() => {
+    if (!editing) setDraft(value);
+  }, [value, editing]);
 
   function start() {
     setDraft(value);
@@ -114,16 +119,74 @@ function SubInlineText({
   );
 }
 
+// ── Inline date picker — click to open native calendar, no typing required ─────
+function SubInlineDatePicker({
+  value,
+  onSave,
+  dueColorClass,
+}: {
+  value: string | null;
+  onSave: (v: string | null) => void;
+  dueColorClass?: string;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+
+  function openPicker() {
+    ref.current?.showPicker?.();
+  }
+
+  const display = formatShort(value);
+  const isEmpty = !value;
+
+  return (
+    <div className="relative cursor-pointer" onClick={openPicker} title="Click to pick date">
+      {/* Formatted display text */}
+      <span
+        className="text-xs tabular-nums block"
+        style={{
+          color: isEmpty
+            ? "var(--muted)"
+            : dueColorClass
+            ? `var(--${dueColorClass})`
+            : "var(--muted)",
+          fontStyle: isEmpty ? "italic" : "normal",
+          opacity: isEmpty ? 0.5 : 1,
+        }}
+      >
+        {display}
+      </span>
+
+      {/* Hidden date input — opened programmatically via showPicker() */}
+      <input
+        ref={ref}
+        type="date"
+        value={value ?? ""}
+        onChange={(e) => onSave(e.target.value || null)}
+        style={{
+          position: "absolute",
+          opacity: 0,
+          pointerEvents: "none",
+          width: "1px",
+          height: "1px",
+          top: 0,
+          left: 0,
+        }}
+      />
+    </div>
+  );
+}
+
+// ── Main SubtaskRow ────────────────────────────────────────────────────────────
 export default function SubtaskRow({ subtask, onToggle, onDelete, onRename, onUpdate }: SubtaskRowProps) {
   const [hovered, setHovered] = useState(false);
   const [statusOpen, setStatusOpen] = useState(false);
 
   async function patch(updates: Partial<Subtask>) {
+    onUpdate(subtask.id, updates);       // instant — UI updates before network
     try {
       await api.subtasks.update(subtask.id, updates as Record<string, unknown>);
-      onUpdate(subtask.id, updates);
     } catch {
-      // silent — visual state unchanged
+      onUpdate(subtask.id, subtask);     // revert to original on failure
     }
   }
 
@@ -131,9 +194,10 @@ export default function SubtaskRow({ subtask, onToggle, onDelete, onRename, onUp
 
   return (
     <div
-      className="grid gap-x-2 px-3 py-1.5 rounded transition-colors group relative"
+      className="grid gap-x-3 px-3 py-2 rounded transition-colors group relative"
       style={{
-        gridTemplateColumns: "1.5rem 1fr 160px 72px 72px 90px 80px 20px",
+        // Mirror the parent task table column proportions — name flex, then fixed columns
+        gridTemplateColumns: "1.5rem 1fr 1fr 90px 90px 120px 100px 24px",
         backgroundColor: hovered ? "rgba(255,255,255,0.035)" : "rgba(255,255,255,0.01)",
         borderLeft: "2px solid var(--border)",
         marginLeft: "8px",
@@ -189,25 +253,18 @@ export default function SubtaskRow({ subtask, onToggle, onDelete, onRename, onUp
 
       {/* Start date */}
       <div className="flex items-center">
-        <input
-          type="date"
-          value={subtask.start_date ?? ""}
-          onChange={(e) => patch({ start_date: e.target.value || null })}
-          className="w-full text-xs bg-transparent border-0 outline-none cursor-pointer"
-          style={{ color: subtask.start_date ? "var(--text)" : "var(--muted)" }}
-          title="Start date"
+        <SubInlineDatePicker
+          value={subtask.start_date}
+          onSave={(v) => patch({ start_date: v })}
         />
       </div>
 
       {/* Due date */}
       <div className="flex items-center">
-        <input
-          type="date"
-          value={subtask.due_date ?? ""}
-          onChange={(e) => patch({ due_date: e.target.value || null })}
-          className="w-full text-xs bg-transparent border-0 outline-none cursor-pointer"
-          style={{ color: `var(--${dueClass})` }}
-          title={subtask.due_date ? `Due ${formatShort(subtask.due_date)}` : "Due date"}
+        <SubInlineDatePicker
+          value={subtask.due_date}
+          onSave={(v) => patch({ due_date: v })}
+          dueColorClass={dueClass}
         />
       </div>
 
@@ -225,7 +282,7 @@ export default function SubtaskRow({ subtask, onToggle, onDelete, onRename, onUp
       <div className="flex items-center relative">
         <button
           onClick={() => setStatusOpen((o) => !o)}
-          className="flex items-center gap-0.5 text-[10px] font-medium rounded px-1 py-0.5 border transition-colors"
+          className="flex items-center gap-0.5 text-[10px] font-medium rounded px-1.5 py-0.5 border transition-colors w-full justify-between"
           style={{
             borderColor: "var(--border)",
             color: STATUS_COLORS[subtask.status],
@@ -233,18 +290,18 @@ export default function SubtaskRow({ subtask, onToggle, onDelete, onRename, onUp
           }}
         >
           <span className="truncate">{STATUS_LABELS[subtask.status]}</span>
-          <ChevronDown size={8} />
+          <ChevronDown size={8} className="shrink-0" />
         </button>
 
         {statusOpen && (
           <div
-            className="absolute z-50 top-full left-0 mt-1 rounded-lg shadow-xl border py-1 min-w-[100px]"
+            className="absolute z-50 top-full left-0 mt-1 rounded-lg shadow-xl border py-1 min-w-[110px]"
             style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}
           >
             {(["not_started", "ongoing", "completed"] as TaskStatus[]).map((s) => (
               <button
                 key={s}
-                className="w-full text-left px-3 py-1 text-[10px] hover:bg-white/5 transition-colors"
+                className="w-full text-left px-3 py-1.5 text-[10px] hover:bg-white/5 transition-colors"
                 style={{ color: STATUS_COLORS[s] }}
                 onClick={() => {
                   patch({ status: s, is_completed: s === "completed" });
